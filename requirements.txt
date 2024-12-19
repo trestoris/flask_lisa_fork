@@ -1,0 +1,5 @@
+flask
+pyyaml
+torch
+openai
+pillow
