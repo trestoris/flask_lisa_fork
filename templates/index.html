@@ -5,19 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling and Grammar Checker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Spelling and Grammar Checker</h1>
-        <form action="/" method="post">
-            <textarea name="text" rows="6" cols="50" placeholder="Enter your text here..." required>{{ original_text }}</textarea><br>
-            <button type="submit">Analyze Text</button>
-        </form>
+        <h1 class="inter-bold">Spelling and Grammar Checker</h1>
+    <form action="/" method="post" id="text-form">
+        <textarea 
+            name="text" 
+            rows="6" 
+            cols="50" 
+            placeholder="Enter your text here..." 
+            required>{{ original_text if original_text else "" }}</textarea><br>
+        <button class="submit-button" type="submit">Analyze Text</button>
+    </form>
 
-        {% if result %}
-        <h2>Analysis Result:</h2>
-        <pre>{{ result }}</pre>
+    <!-- Loader -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+        {% if checked_text %}
+        <div class="result_container">
+            <div class="result_header">
+                <h3>Corrected version of your text</h3>
+            </div>
+            <div class="result_body">
+                <p>{{ checked_text }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if errors %}
+        <h2 class="inter-bold error-title">We found {{ errors|length }} mistakes</h2>
+
+        <div class="error_container">
+            <div class="error_list">
+                {% for error in errors %}
+                <div class="error_item">
+                    <p class="error_text">{{ error.error_before }} -> {{ error.error_after }}</p>
+                    <p class="error_category">{{ error.error_type }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="error_explanation">
+                {% for error in errors %}
+                <div class="explanation_container">	
+                    <div class="explanation_header">
+                        <div class="error_item red">
+                            <p class="error_text">{{ error.error_before }} -> {{ error.error_after }}</p>
+                            <p class="error_category">{{ error.error_type }}</p>
+                        </div>
+                    </div>
+                    <div class="explanation_item">
+                        <p class="explanation_text">{{ error.error_analysis }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
         {% endif %}
     </div>
+
+
+    <script>
+        const form = document.getElementById("text-form");
+        const loader = document.getElementById("loading-overlay");
+        const errorContainer = document.querySelector(".error_container");
+        const resultContainer = document.querySelector(".result_container");
+        const errorTitle = document.querySelector(".error-title"); // New element
+    
+        // Show loader on form submission
+        form.addEventListener("submit", () => {
+            // Clear previous output by hiding containers
+            if (errorContainer) {
+                errorContainer.style.display = "none";
+            }
+            if (resultContainer) {
+                resultContainer.style.display = "none";
+            }
+
+            if (errorTitle) {
+            errorTitle.style.display = "none"; // Hide error title
+        }
+    
+            // Show the loader
+            if (loader) {
+                loader.classList.add("active");
+            }
+        });
+    
+        // Appear animation effects after page load
+        document.addEventListener("DOMContentLoaded", () => {
+            if (errorContainer) {
+                setTimeout(() => {
+                    errorContainer.classList.add("visible");
+                }, 100); 
+            }
+    
+            if (resultContainer) {
+                setTimeout(() => {
+                    resultContainer.classList.add("visible");
+                }, 100); 
+            }
+    
+            if (errorTitle) {
+                setTimeout(() => {
+                    errorTitle.classList.add("visible");
+                }, 100);
+            }
+        });
+    </script>
+    
+    
+
 </body>
 </html>
